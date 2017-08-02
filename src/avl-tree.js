@@ -2,24 +2,23 @@
  * @license
  * Copyright Daniel Imms <http://www.growingwiththeweb.com>
  * Released under MIT license. See LICENSE in the project root for details.
+ * Copyright 2017 azureblue <https://github.com/azureblue>
  */
 'use strict';
-
-var Node = require('./node');
 
 /**
  * Creates a new AVL Tree.
  *
  * @param {function} customCompare An optional custom compare function.
  */
-var AvlTree = function (customCompare) {
+function AvlTree (customCompare) {
   this._root = null;
   this._size = 0;
 
   if (customCompare) {
     this._compare = customCompare;
   }
-};
+}
 
 /**
  * Compares two keys with each other.
@@ -76,6 +75,7 @@ AvlTree.prototype._insert = function (key, value, root) {
 
   // Update height and rebalance tree
   root.height = Math.max(root.leftHeight(), root.rightHeight()) + 1;
+  root.updateWeight();
   var balanceState = getBalanceState(root);
 
   if (balanceState === BalanceState.UNBALANCED_LEFT) {
@@ -156,6 +156,7 @@ AvlTree.prototype._delete = function (key, root) {
 
   // Update height and rebalance tree
   root.height = Math.max(root.leftHeight(), root.rightHeight()) + 1;
+  root.updateWeight();
   var balanceState = getBalanceState(root);
 
   if (balanceState === BalanceState.UNBALANCED_LEFT) {
@@ -299,6 +300,23 @@ AvlTree.prototype.isEmpty = function () {
   return this._size === 0;
 };
 
+AvlTree.prototype._selectKey = function(i, root) {
+  var lw = root.leftWeight();
+  if (i === lw)
+    return root.key;
+  else if (i < lw)
+    return this._selectKey(i, root.left);
+  else
+    return this._selectKey(i - lw - 1, root.right);
+};
+
+
+AvlTree.prototype.selectKey = function(i) {
+  if (!this._root || i < 0 || i >= this._root.weight)
+    return undefined;
+  return this._selectKey(i, this._root);
+};
+
 /**
  * Represents how balanced a node's left and right children are.
  *
@@ -330,5 +348,3 @@ function getBalanceState(node) {
     default: return BalanceState.BALANCED;
   }
 }
-
-module.exports = AvlTree;

@@ -2,6 +2,7 @@
  * @license
  * Copyright Daniel Imms <http://www.growingwiththeweb.com>
  * Released under MIT license. See LICENSE in the project root for details.
+ * Copyright 2017 azureblue <https://github.com/azureblue>
  */
 'use strict';
 
@@ -12,13 +13,14 @@
  * @param {Object} key The key of the new node.
  * @param {Object} value The value of the new node.
  */
-var Node = function (key, value) {
+function Node (key, value) {
   this.left = null;
   this.right = null;
   this.height = null;
+  this.weight = 1;
   this.key = key;
   this.value = value;
-};
+}
 
 /**
  * Performs a right rotate on this node.
@@ -37,7 +39,17 @@ Node.prototype.rotateRight = function () {
   other.right = this;
   this.height = Math.max(this.leftHeight(), this.rightHeight()) + 1;
   other.height = Math.max(other.leftHeight(), this.height) + 1;
+  this.updateWeight();
+  other.updateWeight();
   return other;
+};
+
+Node.prototype.updateWeight = function () {
+  this.weight = 1;
+  if (this.left)
+    this.weight += this.left.weight;
+  if (this.right)
+    this.weight += this.right.weight;
 };
 
 /**
@@ -57,6 +69,8 @@ Node.prototype.rotateLeft = function () {
   other.left = this;
   this.height = Math.max(this.leftHeight(), this.rightHeight()) + 1;
   other.height = Math.max(other.rightHeight(), this.height) + 1;
+  this.updateWeight();
+  other.updateWeight();
   return other;
 };
 
@@ -86,4 +100,16 @@ Node.prototype.rightHeight = function () {
   return this.right.height;
 };
 
-module.exports = Node;
+Node.prototype.leftWeight = function () {
+    if (!this.left) {
+        return 0;
+    }
+    return this.left.weight;
+};
+
+Node.prototype.rightWeight = function () {
+    if (!this.right) {
+        return 0;
+    }
+    return this.right.weight;
+};
