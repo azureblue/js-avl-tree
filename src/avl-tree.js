@@ -54,6 +54,7 @@ AvlTree.prototype.insert = function (key, value) {
  *
  * @private
  * @param {Object} key The key being inserted.
+ * @param {Object} value The value being inserted.
  * @param {Node} root The root of the tree to insert in.
  * @return {Node} The new tree root.
  */
@@ -146,6 +147,7 @@ AvlTree.prototype._delete = function (key, root) {
       // Node has 2 children, get the in-order successor
       var inOrderSuccessor = minValueNode(root.right);
       root.key = inOrderSuccessor.key;
+      root.value = inOrderSuccessor.value;
       root.right = this._delete(inOrderSuccessor.key, root.right);
     }
   }
@@ -208,14 +210,16 @@ AvlTree.prototype.get = function (key) {
  * @private
  * @param {Object} key The key being searched for.
  * @param {Node} root The root of the tree to search in.
- * @return {Object} The value of the node or null if it doesn't exist.
+ * @return {Object} The node or null if it doesn't exist.
  */
 AvlTree.prototype._get = function (key, root) {
-  if (key === root.key) {
+  var result = this._compare(key, root.key);
+
+  if (result === 0) {
     return root;
   }
 
-  if (this._compare(key, root.key) < 0) {
+  if (result < 0) {
     if (!root.left) {
       return null;
     }
